@@ -21,9 +21,7 @@ def save_image(img, original_filename):
     """Saves a CV2 image and returns its new filename."""
     filename = f"{uuid.uuid4().hex}_{secure_filename(original_filename)}"
     filepath = get_image_path(filename)
-    # Convert color space from BGR (cv2) to RGB for saving with PIL
-    if len(img.shape) == 3 and img.shape[2] == 3:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    
     Image.fromarray(img).save(filepath)
     return filename
 
@@ -61,6 +59,10 @@ def process_image():
     img = cv2.imread(filepath, cv2.IMREAD_UNCHANGED)
     if img is None:
         return jsonify({'error': 'Image not found'}), 404
+    
+    # FIX: Convert from BGR (OpenCV default) to RGB for correct colors
+    if len(img.shape) > 2:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         
     output_img = None
     
