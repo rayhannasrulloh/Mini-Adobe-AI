@@ -1,0 +1,28 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    min-height: 75vh;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+#imageCanvas {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+}
+
+#spinner {
+    position: absolute;
+    width: 3rem;
+    height: 3rem;
+}

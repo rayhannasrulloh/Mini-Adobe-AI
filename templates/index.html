@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini-Adobe AI Image Editor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">🎨 Mini-Adobe AI</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Controls</h5>
+                        <div class="mb-3">
+                            <label for="imageUpload" class="form-label">1. Upload Image</label>
+                            <input class="form-control" type="file" id="imageUpload" accept="image/*">
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                             <button id="undoBtn" class="btn btn-secondary w-50 me-1" disabled>Undo</button>
+                             <button id="redoBtn" class="btn btn-secondary w-50 ms-1" disabled>Redo</button>
+                        </div>
+                         <button id="resetBtn" class="btn btn-warning w-100 mb-3" disabled>Reset Original</button>
+
+                        <div class="accordion" id="toolsAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBasic">
+                                        Basic Editing Tools
+                                    </button>
+                                </h2>
+                                <div id="collapseBasic" class="accordion-collapse collapse show" data-bs-parent="#toolsAccordion">
+                                    <div class="accordion-body">
+                                        <label for="brightness" class="form-label">Brightness</label>
+                                        <input type="range" class="form-range tool-slider" id="brightness" min="-100" max="100" value="0" data-op="brightness">
+                                        
+                                        <label for="contrast" class="form-label">Contrast</label>
+                                        <input type="range" class="form-range tool-slider" id="contrast" min="0.5" max="3" value="1" step="0.1" data-op="contrast">
+
+                                        <label for="saturation" class="form-label">Saturation</label>
+                                        <input type="range" class="form-range tool-slider" id="saturation" min="-100" max="100" value="0" data-op="saturation">
+                                        
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <button class="btn btn-outline-primary tool-btn" data-op="rotate" data-value="-90">Rotate L</button>
+                                            <button class="btn btn-outline-primary tool-btn" data-op="rotate" data-value="90">Rotate R</button>
+                                            <button class="btn btn-outline-primary tool-btn" data-op="flip" data-value="horizontal">Flip H</button>
+                                            <button class="btn btn-outline-primary tool-btn" data-op="flip" data-value="vertical">Flip V</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilters">
+                                        Filters & Effects
+                                    </button>
+                                </h2>
+                                <div id="collapseFilters" class="accordion-collapse collapse" data-bs-parent="#toolsAccordion">
+                                    <div class="accordion-body">
+                                        <button class="btn btn-sm btn-outline-info tool-btn mb-2 w-100" data-op="histogram-equalization">Histogram Equalization</button>
+                                        <button class="btn btn-sm btn-outline-info tool-btn mb-2 w-100" data-op="sharpen">Sharpen</button>
+                                        <button class="btn btn-sm btn-outline-info tool-btn mb-2 w-100" data-op="edge-detection">Edge Detection</button>
+                                        
+                                        <label for="gaussian-blur" class="form-label mt-2">Gaussian Blur</label>
+                                        <input type="range" class="form-range tool-slider" id="gaussian-blur" min="1" max="51" value="1" step="2" data-op="gaussian-blur">
+                                        
+                                        <label for="median-blur" class="form-label">Median Blur (Noise Reduction)</label>
+                                        <input type="range" class="form-range tool-slider" id="median-blur" min="1" max="51" value="1" step="2" data-op="median-blur">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAI">
+                                        🤖 AI Features
+                                    </button>
+                                </h2>
+                                <div id="collapseAI" class="accordion-collapse collapse" data-bs-parent="#toolsAccordion">
+                                    <div class="accordion-body">
+                                        <button class="btn btn-success tool-btn w-100 mb-2" data-op="remove-bg">Remove Background</button>
+                                        <button class="btn btn-success tool-btn w-100 mb-2" data-op="beautify">Face Beautify</button>
+                                        <button class="btn btn-success tool-btn w-100 mb-2" data-op="style-transfer">Artistic Style Transfer</button>
+                                        <button class="btn btn-success tool-btn w-100" data-op="super-resolution">Super Resolution (2x)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="image-container">
+                    <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <img id="imageCanvas" src="" alt="Upload an image to start editing" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
